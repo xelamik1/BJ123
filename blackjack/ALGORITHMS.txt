@@ -1,0 +1,93 @@
+How the counting works
+======================
+
+Sources: Wizard of Odds (High-Low page, house-edge calculator, variance
+appendix), Schlesinger "Blackjack Attack" (Illustrious 18 / Fab 4, quoted via
+Wizard of Odds), Werthamer 2006 (wonging thresholds), Snyder/Wong (edge per
+true count). Full notes and links: research/ (report) and research/notes/.
+
+1. Tag every card (counting.SYSTEMS)
+   Each rank gets a tag. Low cards leaving the shoe help the player, so they
+   add; tens and aces leaving hurt, so they subtract.
+
+   rank:          A   2   3   4   5   6   7   8   9   T
+   Hi-Lo        -1  +1  +1  +1  +1  +1   0   0   0  -1   (default; level 1, balanced)
+   KO           -1  +1  +1  +1  +1  +1  +1   0   0  -1   (unbalanced: use running count only)
+   Hi-Opt II     0  +1  +1  +2  +2  +1  +1   0   0  -2
+   Omega II      0  +1  +1  +2  +2  +2  +1   0  -1  -2
+   Zen          -1  +1  +1  +2  +2  +2  +1   0   0  -2
+   Wong Halves  -1 +.5  +1  +1 +1.5 +1 +.5   0 -.5  -1
+
+   Mental effort does not matter for software, but the higher-level systems
+   only gain about 0.1% over Hi-Lo; the indices below are Hi-Lo values, so
+   Hi-Lo drives every decision and the others are shown for comparison.
+
+2. Running count -> true count
+   running count = sum of tags of every card seen since the shuffle.
+   true count    = running count / decks remaining.
+   decks remaining is exact here: (cards in shoe - cards seen) / cards per deck,
+   with cards in shoe = decks x cards per deck (PLACEHOLDER: 8 x 52).
+
+3. True count -> edge (counting.EdgeModel)
+   edge ~= base edge + 0.5% x true count   (PLACEHOLDERS)
+   base edge ~= -0.71% for the published 99.29% return of the classic table,
+   so break-even is around TC +1.4. Measure, do not trust this number.
+
+4. When to sit and leave (tracker.TrackerSettings)
+   wong_in  = +3 (about +0.8% edge under the placeholder model)
+   wong_out = below +1.5, or at the shuffle.
+   Werthamer found entry at +2 to +3 and exit around -2 to -3 near-optimal for
+   6 decks; the higher exit here reflects the worse base edge. No 8-deck 50%
+   penetration study was found, which is why the tool logs every shoe.
+
+5. Index plays (indices.py)
+   Illustrious 18 (Hi-Lo, multi-deck): play changes when the true count reaches
+   the index. Insurance at +3. Fab 4 surrenders only if surrender is offered.
+   Doubles against an ace may differ on no-hole-card tables.
+
+6. Bet size and risk
+   Kelly bet ~= bankroll x edge / variance (variance ~1.3); use half Kelly.
+   N0 = variance / edge^2 = hands until the expected win equals one standard
+   deviation (about 20,000 hands at a 0.8% edge).
+   Risk of ruin (flat bet) ~= exp(-2 x edge x bankroll_units / variance).
+
+7. Why the shoe can be "unreliable"
+   The count only means something if every card since the shuffle was seen.
+   The tracker marks a shoe unreliable (and suppresses alerts) when it started
+   mid-shoe, resumed after a long gap, or saw more of a rank than the shoe holds.
+   One missed card moves the true count by about 0.25 with 4 decks left.
+
+How the tracker sees cards
+==========================
+  capture (mss) -> YOLO boxes -> zone (dealer / seat1..seatN) by box centre
+  -> merge the two corner boxes of one card -> match to an existing track
+  (nearest centre in the same zone) -> after `stable_frames` frames the card is
+  counted once and written to SQLite -> later frames can correct it by vote,
+  or Claude can correct a low-confidence card in the background.
+  A round ends after `empty_frames_round_end` empty frames. A shoe ends on the
+  shuffle banner (template match), the overlay's New shoe button, or an
+  optional idle timeout. Memory survives restarts: open shoes and the cards on
+  the felt are rebuilt from the database.
+
+Model check (pretrained YOLO11n, TorchScript, CPU, conf 0.25)
+============================================================
+Six public Wikimedia Commons photos of blackjack hands (not taken from the
+model's dataset as far as can be told); the three below were checked by eye
+against the drawn boxes, the other three were not scored:
+  - close-ups (3 + 2 cards): every card right, both corners usually found at
+    0.65-0.89; one spurious 8S at 0.45.
+  - full-table view, whole frame: most cards missed or misread (A/8 of
+    diamonds read as 7D, 8H as 9H, dealer's AD 8S missed).
+  - same view, each seat cropped first (detect_per_zone): all 10 cards right
+    (dealer AD 8S; 2D 6C 5C 4C; JD 8H AC 8D), one stray 8C at 0.54, removed by
+    min_confidence 0.6. Fed through the tracker: 10 cards, Hi-Lo RC +1.
+  - a busier full-table photo (15 cards, hands overlapping), per-zone, through
+    the tracker: 14 right, 1 missed (a 2D scored 0.44-0.53), nothing invented.
+    Two bugs found and fixed on the way: corner boxes of one card landing in
+    neighbouring zones (now merged before zoning), and cards cut off at a crop
+    edge (now dropped). Zone padding 20 px added a false 9D, so padding is 0.
+  - totals over both full-table photos: 24 of 25 cards right, 0 false.
+  - inference 40-90 ms per image on CPU.
+These are physical cards photographed on felt, not a live-dealer stream:
+collect screenshots of the real tables, label them, and use
+`python -m blackjack evaluate` before trusting live readings.

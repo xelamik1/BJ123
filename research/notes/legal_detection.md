@@ -1,0 +1,95 @@
+# Legal and practical risks of software-assisted card counting / wonging at live-dealer online blackjack
+
+Scope note: researched 2026-10-30 under a limited budget of tool calls (about 20). This is general information, not legal advice. Several operator T&C pages blocked automated fetching (DraftKings returned 403, Stake 403, BetMGM and LeoVegas 404), so **no verbatim T&C clause from bet365, William Hill, BetMGM, DraftKings, FanDuel, Stake or LeoVegas could be verified**. Treat every operator-terms point below as secondary or general unless it is quoted with a source. Many search results were low-quality or spam affiliate pages. I excluded those and flag the remaining weak sources.
+
+## 1. Legality by jurisdiction (card counting itself vs. device/software assistance)
+
+### Takeaway
+Mental card counting is lawful everywhere I checked. The legal exposure comes from **devices**. US "Nevada-type" device statutes (NV, MS, CO, IL, IN, IA) and NJ's 5:12-113.1 criminalise using a device to track cards. However, their text ties the offence to play "at a licensed gaming establishment" / "in a licensed casino". I found no source applying them to remote online play, so their reach to a player at home is untested and uncertain. In the UK, s.42 Gambling Act 2005 ("cheating") is broad and, after *Ivey*, needs no proof of dishonesty. A software counting aid used against an operator's terms is therefore a real, though untested, criminal risk. The more certain consequence everywhere is contractual: confiscation and account closure.
+
+### Cited Findings
+**US – Nevada-style device laws**
+- NRS 465.075: "It is unlawful for any person at a licensed gaming establishment to use, or possess with the intent to use, any device to assist" in projecting outcomes, **keeping track of cards played**, analysing probabilities, or analysing strategy — [Justia 2010 NRS 465.075](https://law.justia.com/codes/nevada/2010/title41/chapter465/nrs465-075.html); current official text at [leg.state.nv.us NRS 465](https://www.leg.state.nv.us/NRS/NRS-465.html) (rev. 2025). A 2013 amendment (AB 102) added wording about devices offered by a licensee or affiliate — [NV Legislature AB102 amendment](https://archive.leg.state.nv.us/Session/77th2013/Bills/Amendments/A_AB10_246.pdf).
+- 2009: the Nevada Gaming Control Board told licensees that possessing a device (an iPhone) with a card-counting program, with intent to use it, in a licensed gaming establishment violates NRS 465.075 — [NGCB industry notice 2009-02-05](https://gaming.nv.gov/uploadedFiles/gamingnvgov/content/about/industry-notices/2009-02-05-.pdf); [Slashdot coverage](https://games.slashdot.org/story/09/02/17/1547233/casinos-warn-iphone-card-counting-app-is-illegal). (Nevada has no legal online casino table games, so this applies to land play only.)
+- Source dated 1994 (old): Mississippi §75-76-303 uses Nevada-type wording. Colorado §12-47.1-824 uses the same wording, penalty 6–18 months and/or $500–$5,000. Illinois has a similar provision with a 1–3 year penalty. Indiana §4-33-10-2(3) sets at least 1 year plus a fine of up to double the gain. Iowa §99F.15(4)(c) sets up to 5 years and/or $7,500. Louisiana has only a general "fraudulent device" cheating statute. The Nevada-type statutes do not define "device" — [Las Vegas Advisor / Blackjack Forum, "Your Ticket to the Big House (Part II)", T. Duffy, June 1994](https://www.lasvegasadvisor.com/blog/blackjack-computers-3/). Statute numbers have since been recodified in some states (e.g., Colorado), so current citations need checking.
+
+**US – New Jersey (largest online casino market)**
+- N.J.S.A. 5:12-113.1 (as quoted in 1994 source): a person commits a **disorderly persons offense** if, "in playing a game in a licensed casino or simulcasting facility," they use a device programmed to gain an advantage. The device is subject to forfeiture — [Las Vegas Advisor (1994)](https://www.lasvegasadvisor.com/blog/blackjack-computers-3/).
+- N.J.S.A. 5:12-115 is headed "Cheating games and devices in a licensed casino; penalty" — [Justia NJ 5:12-115 (2017)](https://law.justia.com/codes/new-jersey/2017/title-5/section-5-12-115/).
+- The NJ Supreme Court held that neither the Casino Control Act nor Commission regulations prohibit card counting, though casinos may use countermeasures — [FindLaw NJ Supreme Court decision](https://caselaw.findlaw.com/nj-supreme-court/1416955.html) (this is the *Uston*-line authority; the exact case name and year were not confirmed in the snippet).
+- NJ internet gaming regulations (N.J.A.C. 13:69O) were found to address bots only in the peer-to-peer context (13:69O-1.5(p): server software must not use automated computerized players against patrons). I found no regulation that expressly addresses player-side counting software — [Cornell LII N.J.A.C. 13:69O](https://www.law.cornell.edu/regulations/new-jersey/title-13/chapter-69O); [Justia 13:69O-1.5](https://regulations.justia.com/states/new-jersey/title-13/chapter-69o/subchapter-1/section-13-69o-1-5) (current through Sept 2024).
+
+**UK**
+- Gambling Act 2005 s.42: an offence to cheat at gambling or to do anything to enable or assist another to cheat. Cheating "may, in particular, consist of actual or attempted deception or interference in connection with the process by which gambling is conducted". The maximum penalty is 2 years' imprisonment and/or a fine — [legislation.gov.uk s.42](https://legislation.gov.uk/ukpga/2005/19/section/42); [UKGC FOI response](https://www.gamblingcommission.gov.uk/about-us/freedomofinformation/section-42-cheating).
+- In an FOI response, UKGC said it holds **no policies or guidance on player-owned devices or on the legality of card counting**. It added that courtsiding is not in itself a s.42 offence but may breach terms — [UKGC FOI "Section 42 cheating"](https://www.gamblingcommission.gov.uk/about-us/freedomofinformation/section-42-cheating).
+- *Ivey v Genting* (edge-sorting at Crockfords). The Court of Appeal (2016) split on whether s.42 requires dishonesty — [National Archives EWCA Civ 1093](https://caselaw.nationalarchives.gov.uk/ewca/civ/2016/1093). The UK Supreme Court (2017) then held that edge-sorting was cheating and that dishonesty is not a necessary element of cheating — [Pinsent Masons Out-Law](https://www.pinsentmasons.com/out-law/news/uk-court-rules-gamblers-advantage-play-constitutes-cheating); [Ivey judgment PDF](https://www.39essex.com/wp-content/uploads/2017/03/Ivey-Judgement.pdf). Commentary distinguished Ivey's conduct from legitimate memory-only card counting — [Olliers Solicitors](https://www.olliers.com/news/beat-casino-without-cheating/).
+
+**Australia**
+- The Interactive Gambling Act 2001 prohibits **providing** interactive casino-style games (e.g., online blackjack, roulette) to customers in Australia. The offence is aimed at operators. ACMA enforces it, including civil penalty proceedings — [Dept of Infrastructure, Interactive gambling](https://www.infrastructure.gov.au/media-communications/media-gambling-laws-regulation/gambling/interactive-gambling); [IGA text, Federal Register of Legislation](https://www.legislation.gov.au/C2004A00851/2014-10-17/2014-10-17/text/original/epub/OEBPS/document_1/document_1.html). Commentary sites say players commit no offence, but I could not verify this against the Act text in this pass.
+
+### Inferences
+- The US device statutes are written around physical presence ("at a licensed gaming establishment", "in a licensed casino"). A prosecutor might argue that an online account with a licensed NJ/PA/MI casino is play "in" that casino, because NJ internet gaming is legally conducted through Atlantic City licensees. This is untested in any source I found, so the risk is uncertain rather than zero.
+- In the UK, s.42 combined with *Ivey* (no dishonesty needed) creates more theoretical exposure for software assistance than for mental counting. It would likely turn on whether using a prohibited aid in breach of the operator's terms counts as "deception … in connection with the process". UKGC has published no guidance (per its FOI).
+- In practice, in every jurisdiction the dominant consequence is contractual (voided winnings, closure), not prosecution. I found no reported prosecution of an online live-blackjack counter.
+
+### Gaps
+- **PA, MI, WV, CT, DE, RI**: I did not retrieve their cheating/device statutes or iGaming regulations. Many state casino acts copy Nevada-type device language (e.g., PA 4 Pa.C.S. §1518 is believed to contain a device prohibition), but this is **not verified**, nor is applicability to online play.
+- **Canada (Ontario/iGO, AGCO Registrar's Standards; other provinces)**: not researched within budget. The Criminal Code s.209 "cheating at play" was not checked.
+- **EU (Malta MGA, Sweden Spelinspektionen, Spain DGOJ)**: not researched within budget.
+- Whether any regulator has issued guidance specifically on player-side counting software or AI "assistants" for live casino (none found).
+
+## 2. Online casino terms of service: software aids, bots, advantage/irregular play, card counting
+
+### Takeaway
+I could not retrieve verbatim clauses from the named major operators (bot-blocking or moved pages). Secondary sources consistently say that operators' terms (a) prohibit bots/third-party software, (b) contain vague "irregular play"/"advantage play" clauses, and (c) reserve the right to void winnings, withhold balances and close accounts at their discretion. One historical operator (5Dimes) explicitly banned "professional card counters".
+
+### Cited Findings
+- 5Dimes terms (as quoted in 2013): "Professional card counters are prohibited"; account subject to immediate closure — [Wizard of Vegas thread, Jan–Apr 2013 (old)](https://wizardofvegas.com/forum/gambling/online/12798-card-counting-at-online-blackjack/).
+- PlayOJO promo term: "Irregular play may lead to removal of reward." All British Casino: "Eligibility is restricted for suspected abuse" — [OLBG (2026 page; promotional terms, not counting-specific)](https://www.olbg.com/casino-sites/articles/online-casinos-counting-cards).
+- Card counting itself is not illegal, but "using bots, third party software, or breaking site terms" is what violates rules — operator-published guide: [Hard Rock Bet, "Online Blackjack Card Counting Myths vs. Reality"](https://www.hardrock.bet/casino/how-to-play-blackjack/card-counting/).
+- A guide says counting in your head is not cheating, but software assistance is prohibited by many operators' terms, and large bet swings can get accounts limited or closed — [CountPilot guide](https://countpilot.app/guides/can-you-count-cards-in-online-live-blackjack.html) (note: published by a counting-app vendor).
+- "Nearly every online casino agreement in the United States reserves the right to close or suspend an account at the operator's discretion, with or without notice." Winnings tied to unmet wagering requirements are typically voided on closure, while cleared cash usually is not — [LegalBlackjackSites, account closures](https://www.legalblackjacksites.com/player-rights/account-closures/); [USABlackjackSites](https://www.usablackjacksites.com/safety/account-closures/) (affiliate guides).
+- "Irregular play" clauses are often vague ("irregular", "unusual", "abnormal", "suspicious" betting patterns, usually undefined) and give operators room to void winnings, often discovered at withdrawal — [Casino Sites guide](https://casinosites.bet/guides/terms-that-void-winnings/); [VPNCasinos blog](https://vpncasinos.net/blog/casino-terms-that-void-winnings/) (affiliate/low-authority; one claim in this cluster, that a bet365 clause was "enforced in 27 documented cases", could not be verified and should not be used).
+- A bet365 review says bet365 has no specific anti-counting rule because Evolution's 8-deck shoe shuffled about halfway makes counting moot — [LegalBlackjack bet365 review](https://www.legalblackjack.com/bet365/) (secondary; not bet365's own terms).
+
+### Inferences
+- Even without a "card counting" clause, standard "no software/automated aids/bots" and "irregular play" clauses would almost certainly cover a screen-reading counting tracker. The spectate-then-join pattern ("wonging") is exactly the kind of bet-pattern change these clauses target.
+- In regulated US markets, confiscating cleared funds usually needs a T&C basis and is reviewable by the state regulator (e.g., NJ DGE patron complaints). Offshore operators (e.g., Curaçao-licensed) have far less recourse. One guide notes that withheld offshore balances are "frequently gone" ([USABlackjackSites](https://www.usablackjacksites.com/safety/account-closures/)).
+
+### Gaps
+- No verbatim clauses for bet365, William Hill, BetMGM, DraftKings, FanDuel, Stake or LeoVegas: pages blocked automated fetching (403/404). A human should pull each operator's current general T&Cs (sections usually titled "Prohibited practices", "Fair use", "Use of software/robots", "Irregular play") and jurisdiction-specific versions (NJ vs PA vs UK differ).
+- No source found on whether a UK operator may lawfully confiscate stake/deposits (as opposed to winnings) under the Consumer Rights Act/CMA guidance for this conduct. CMA online gambling undertakings (2018) relate to this but were not checked.
+
+## 3. Detection of counting/wonging online, account outcomes, and live-provider countermeasures
+
+### Takeaway
+Live-dealer games are structurally hostile to counting. Main providers use 8-deck shoes with roughly 50% penetration, and some use continuous shufflers or single-shared-hand formats. Operators reportedly monitor bet-vs-count correlation, and secondary sources say counters are often only discovered at withdrawal. I found **no verified IBAS/ADR decision or news report** on confiscated live-blackjack winnings for counting or software use. First-hand forum accounts are old (2013) and anecdotal.
+
+### Cited Findings
+**Game-structure countermeasures**
+- Evolution deals from 8 decks and shuffles around halfway through the shoe. Playtech private tables reportedly shuffle on comparable terms — [LegalBlackjack bet365 review](https://www.legalblackjack.com/bet365/) (secondary).
+- Live dealer: 8 decks, with a shuffle after about three decks have passed. Penetration is described as "so shallow" that no real advantage can develop — [OLBG](https://www.olbg.com/casino-sites/articles/online-casinos-counting-cards). Another guide gives a reshuffle at "approximately four decks left" ([OLBG IE](https://www.olbg.com/ie/casino-sites/articles/counting-cards)). A further guide says most live tables shuffle at 50–60% penetration (weak source: [DeucesCracked](https://www.deucescracked.com/casino/strategy/card-counting-online-blackjack)).
+- Wonging is described as pointless online because of recurring shuffles — [OLBG](https://www.olbg.com/casino-sites/articles/online-casinos-counting-cards).
+- An industry article (Sept 2026) on "observable deck penetration limits in live-dealer blackjack streams" says streams show dealt cards and shuffle timing but hide original deck count and cut-card placement — [SCCG Management](https://sccgmanagement.com/sccg-articles/2026/09/10/assessing-observable-deck-penetration-limits-in-live-dealer-blackjack-streams/) (reliability unclear; not fetched).
+- In 2013, bet spreads at live tables ranged from 1–10 up to 1–40 at most operators, with one offering 1–250 — [Wizard of Vegas thread (2013, old)](https://wizardofvegas.com/forum/gambling/online/12798-card-counting-at-online-blackjack/).
+
+**Detection**
+- Claim: a casino algorithm would flag a player who starts betting big when high cards are expected. A counter may not know they were caught until attempting a withdrawal — [OLBG](https://www.olbg.com/casino-sites/articles/online-casinos-counting-cards) (unsourced opinion).
+- Claim: almost all live blackjack operators use software to track both shoes and each player's betting patterns — [DeucesCracked](https://www.deucescracked.com/casino/strategy/card-counting-online-blackjack) (weak, unsourced).
+- Land-based analogue: Scientific Games' i-Shoe correlates bet size with true count to flag counters (per secondary source above). Academic work on real-time counter detection: [Zutis & Hoey, "Who's Counting?", U. Waterloo (2009)](https://cs.uwaterloo.ca/~jhoey/research/blackjack/).
+- A player who consistently wins may be restricted or closed as "high-risk", not necessarily for proven counting. Winnings may be confiscated "regardless of proof of counting cards" — [OLBG](https://www.olbg.com/casino-sites/articles/online-casinos-counting-cards) (opinion).
+
+**Player accounts / outcomes**
+- Wizard of Vegas, 2013: one poster (Jufo81) counted live single-deck at Coral with 5 hands, estimated a 0.2–0.3% edge, and reported "no issues". Another poster said, "if they catch you, they void all money and close account". Another said it is "pretty standard practice at online casinos to seize or 'freeze' cash" — [Wizard of Vegas](https://wizardofvegas.com/forum/gambling/online/12798-card-counting-at-online-blackjack/) (anecdotal, 13 years old).
+- Land-based context: a 2025 Nevada ruling upheld a casino's barring of a presumed blackjack advantage player — [CDC Gaming Reports](https://cdcgaming.com/nevada-regulators-reject-appeal-by-presumed-blackjack-advantage-player/).
+- IBAS is a free, independent ADR body for UK operator–customer disputes — [FSP Law guide](https://www.fsp-law.com/beginners-guide-to-the-independent-betting-adjudication-service-ibas/). I surfaced no published IBAS decision on live-blackjack counting.
+
+### Inferences
+- The specific strategy (spectate, then join and bet only at high counts) produces an obvious signature: sessions that start mid-shoe, high bet sizes concentrated late in the shoe, near-zero play at neutral counts, and possibly many tables opened without betting. Server logs record join time, shoe position, and bet size per round. Matching bets to the true count is trivial for an operator because it has the card data. I infer this would be easier to detect than land-based wonging, but I found no published operator description of such a model.
+- Shallow penetration (about 50%) on 8 decks means high true counts are rare, so a wonger would make few bets per hour. The variance and low win rate make a software tracker high-risk for low expected return, separate from the legal and terms issues.
+- Evolution's "Infinite Blackjack" / "Free Bet" / "Blackjack Party" formats and seat time-out rules (sit-out limits, "bet behind") likely matter, but none were verified from Evolution's own rules pages in this pass.
+
+### Gaps
+- No Evolution, Playtech or Pragmatic primary documents (game rules or help pages) on shoe size, cut card, continuous shuffler (CSM) use, seat time-outs or anti-wonging rules were retrieved.
+- No IBAS/UKGC ADR, NJ DGE, PGCB or MGA complaint decisions about confiscated live-blackjack winnings for counting/software were found. Do not assert any case outcomes.
+- No recent (2023–2026) first-hand player reports, verified news stories, or operator risk-team statements on live-blackjack counting detection were found.

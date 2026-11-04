@@ -1,0 +1,8 @@
+# Live capture and detection (the core tracker and tests need none of these)
+ultralytics>=8.3
+opencv-python>=4.9
+mss>=9.0
+numpy>=1.26
+# Optional Claude fallback for low-confidence cards
+anthropic>=1.0
+pydantic>=2.6

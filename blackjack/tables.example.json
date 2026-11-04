@@ -1,0 +1,59 @@
+{
+  "_note": "Every number here is a PLACEHOLDER. Measure each table and replace them. Keys starting with _ are ignored.",
+  "weights": "runtime/models/yolo11n_playing_cards.torchscript",
+  "database": "runtime/blackjack.sqlite3",
+  "fps": 10,
+  "detector_confidence": 0.25,
+  "_detect_note": "Per-zone detection crops each seat before running YOLO; full-frame detection misread small cards in testing.",
+  "detect_per_zone": true,
+  "zone_padding": 0,
+  "llm": {"enabled": false, "model": "claude-opus-5-5", "crop_size": [120, 170]},
+  "defaults": {
+    "shoe": {
+      "_note": "PLACEHOLDER shoe: 8 decks of 52, about half dealt before the shuffle.",
+      "decks": 8,
+      "cards_per_rank_per_deck": {"1": 4, "2": 4, "3": 4, "4": 4, "5": 4, "6": 4, "7": 4, "8": 4, "9": 4, "10": 16},
+      "penetration": 0.5
+    },
+    "edge": {
+      "_note": "PLACEHOLDER edge model: ~0.71% house edge, +0.5% per Hi-Lo true count.",
+      "base_edge": -0.0071,
+      "per_true_count": 0.005,
+      "variance": 1.3
+    },
+    "tracker": {
+      "stable_frames": 3,
+      "min_confidence": 0.6,
+      "review_confidence": 0.7,
+      "merge_distance": 90,
+      "match_distance": 60,
+      "hand_gap": 120,
+      "empty_frames_round_end": 15,
+      "shuffle_frames": 5,
+      "idle_seconds_new_shoe": 0,
+      "wong_in": 3.0,
+      "wong_out": 1.5,
+      "surrender_allowed": false
+    }
+  },
+  "tables": [
+    {
+      "id": "table-1",
+      "_note": "Region is where this table sits on your screen. Zones are inside that region. 6 seats as a PLACEHOLDER (Evolution classic tables have 7: add seat7). Run `python -m blackjack calibrate` to check them.",
+      "region": {"left": 0, "top": 0, "width": 1100, "height": 580},
+      "tracker": {
+        "my_seat": null,
+        "zones": {
+          "dealer": [380, 330, 340, 90],
+          "seat1": [880, 430, 200, 140],
+          "seat2": [720, 470, 170, 110],
+          "seat3": [550, 490, 170, 90],
+          "seat4": [380, 490, 170, 90],
+          "seat5": [210, 470, 170, 110],
+          "seat6": [20, 430, 200, 140]
+        }
+      },
+      "shuffle_banner": null
+    }
+  ]
+}

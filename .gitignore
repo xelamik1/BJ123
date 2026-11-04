@@ -1,0 +1,7 @@
+# Local data: database, downloaded models, captures, training runs
+runtime/
+# Your personal table layout (copy of blackjack/tables.example.json)
+/blackjack/tables.json
+__pycache__/
+*.pyc
+.venv/
