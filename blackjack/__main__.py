@@ -7,6 +7,7 @@
   train DATA_YAML             fine-tune the model on your labelled screenshots
   evaluate DATA_YAML          precision / recall / mAP on your labelled val screenshots
   run [--no-overlay]          watch the tables, count, remember, alert
+  serve [--port 8765] [--video F] [--no-capture]   local web UI at http://127.0.0.1:8765
   history TABLE [--seat S]    print remembered cards for a table or seat
   shoes TABLE                 cards and rounds per shoe (measures penetration)
 """
@@ -161,6 +162,62 @@ def cmd_run(args):
         memory.close()
 
 
+def cmd_serve(args):
+    from . import server
+    path = Path(args.config)
+    if not path.exists():
+        path = Path(__file__).parent / "tables.example.json"
+        print(f"{args.config} not found; using {path} (placeholder zones)")
+    cfg = config_mod.load(path)
+    bet, strategy = server.load_extras(path)
+    memory = Memory(cfg.database)
+    pending, reviewer = [], None
+    if cfg.llm.get("enabled") and not args.no_capture:
+        from .llm import ClaudeReviewer
+        reviewer = ClaudeReviewer(cfg.llm.get("model", "claude-opus-5-5"))
+    mode = "none" if args.no_capture else "video" if args.video else "screen"
+    runtimes, banners = [], {}
+    for table in cfg.tables:
+        tracker = TableTracker(
+            table.id, table.tracker, table.shoe, memory, table.edge,
+            review=(lambda tr, tk: pending.append((tr, tk))) if reviewer else None)
+        runtimes.append(server.TableRuntime(table.id, tracker, mode))
+        if table.shuffle_banner and not args.no_capture:
+            from .shuffle import BannerDetector
+            banners[table.id] = BannerDetector(table.shuffle_banner["template"],
+                                               table.shuffle_banner["zone"],
+                                               table.shuffle_banner.get("threshold", 0.8))
+    app = server.App(runtimes, memory, bet, strategy)
+    loop = None
+    if not args.no_capture:
+        detector = None
+        if Path(cfg.weights).exists():
+            from .detector import YoloDetector
+            detector = YoloDetector(cfg.weights, cfg.detector_confidence)
+        else:
+            print(f"weights {cfg.weights} not found: showing frames without detections "
+                  f"(run `python -m blackjack fetch-model`)")
+        if args.video:
+            source = server.VideoSource(args.video, cfg.fps)
+        else:
+            from .capture import ScreenCapture
+            source = ScreenCapture()
+        loop = server.CaptureLoop(app, cfg.tables, source, detector, cfg, banners, reviewer, pending)
+        loop.start()
+    httpd = server.make_server(app, args.host, args.port)
+    print(f"UI at http://{args.host}:{args.port}  (Ctrl+C to stop)")
+    try:
+        httpd.serve_forever()
+    except KeyboardInterrupt:
+        pass
+    finally:
+        if loop:
+            loop.stop_flag.set()
+            loop.join(timeout=3)
+        httpd.server_close()
+        memory.close()
+
+
 def cmd_history(args):
     cfg = _load(args)
     memory = Memory(cfg.database)
@@ -211,6 +268,12 @@ def main(argv=None):
     p = sub.add_parser("run")
     p.add_argument("--no-overlay", action="store_true")
     p.set_defaults(func=cmd_run)
+    p = sub.add_parser("serve")
+    p.add_argument("--host", default="127.0.0.1")
+    p.add_argument("--port", type=int, default=8765)
+    p.add_argument("--video", default=None, help="read frames from a video file instead of the screen")
+    p.add_argument("--no-capture", action="store_true", help="UI only: no screen capture or detection")
+    p.set_defaults(func=cmd_serve)
     p = sub.add_parser("history")
     p.add_argument("table")
     p.add_argument("--seat")

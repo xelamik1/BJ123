@@ -134,3 +134,21 @@ class EdgeModel:
     def risk_of_ruin(self, edge, bankroll_units):
         """Flat-bet approximation exp(-2 * EV * bankroll / variance)."""
         return 1.0 if edge <= 0 else math.exp(-2 * edge * bankroll_units / self.variance)
+
+
+# Unit sizing (NOT bankroll management). [min_true_count, units] pairs; PLACEHOLDER values.
+DEFAULT_BET_RAMP = [[-100, 1], [1, 2], [2, 5], [3, 10], [4, 20]]
+
+
+def bet_units(true_count, ramp=None):
+    """Units to bet at this true count: the last ramp step whose threshold is <= TC.
+
+    ramp is a list of [min_true_count, units]; below the first threshold the
+    first step's units apply.
+    """
+    steps = sorted((float(t), int(u)) for t, u in (ramp or DEFAULT_BET_RAMP))
+    units = steps[0][1]
+    for threshold, step_units in steps:
+        if true_count >= threshold:
+            units = step_units
+    return units

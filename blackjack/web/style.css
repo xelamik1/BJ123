@@ -1,0 +1,61 @@
+:root { --grey:#6b6b6b; --white:#f2f2f2; --green:#2ecc71; --red:#ff5a5a; --amber:#ffb020; --bg:#000; --panel:#0c0c0c; }
+* { box-sizing: border-box; }
+body { margin:0; padding:12px 16px; background:var(--bg); color:var(--white);
+  font:14px/1.35 system-ui, -apple-system, "Segoe UI", sans-serif; }
+header { display:flex; flex-wrap:wrap; gap:12px; align-items:center; justify-content:space-between;
+  border-bottom:1px solid #222; padding-bottom:10px; }
+.stats { display:flex; flex-wrap:wrap; gap:6px 18px; align-items:baseline; }
+.stat b { font-size:22px; font-variant-numeric:tabular-nums; }
+.stat span { color:#9a9a9a; font-size:12px; margin-right:4px; }
+.stat.bet b { color:var(--green); }
+.ok { color:var(--green); } .bad { color:var(--red); }
+.controls { display:flex; gap:10px; align-items:center; }
+select, input { background:#111; color:var(--white); border:1px solid #333; border-radius:4px; padding:6px; }
+.unit input { width:64px; }
+#newshoe { background:var(--red); color:#000; font-weight:700; font-size:18px; border:0; border-radius:6px;
+  padding:12px 22px; cursor:pointer; }
+#newshoe:hover { filter:brightness(1.15); }
+#banner { margin-top:8px; }
+.alert { background:#103a1d; color:var(--green); padding:6px 10px; border-radius:4px; margin-bottom:4px; font-weight:600; }
+.warn { background:#3a2a08; color:var(--amber); padding:6px 10px; border-radius:4px; margin-bottom:4px; }
+#feedbox { position:relative; margin:10px auto; max-width:1000px; min-height:120px; background:#0a0a0a;
+  border:1px solid #222; }
+#feed { display:block; width:100%; height:auto; }
+#nofeed { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; color:#555; }
+#feedbox.live #nofeed { display:none; }
+#feedbox:not(.live) #feed { visibility:hidden; height:120px; }
+#dealer { display:flex; gap:10px; align-items:center; margin:6px 0; min-height:40px; }
+#dealer .label { color:#9a9a9a; text-transform:uppercase; font-size:12px; width:70px; }
+#seats { display:grid; grid-template-columns:repeat(7, minmax(0, 1fr)); gap:8px; }
+.seat { background:var(--panel); border:2px solid var(--grey); color:var(--grey); border-radius:8px;
+  padding:8px; min-height:150px; cursor:pointer; user-select:none; }
+.seat.occupied { border-color:var(--white); color:var(--white); }
+.seat.mine { border-color:var(--green); color:var(--green); box-shadow:0 0 0 1px var(--green) inset; }
+.seat .top { display:flex; justify-content:space-between; align-items:center; font-weight:700; }
+.seat .tag { font-size:11px; font-weight:400; opacity:.8; }
+.mini { font-size:11px; background:#161616; color:inherit; border:1px solid currentColor; border-radius:3px;
+  padding:1px 5px; cursor:pointer; opacity:.8; }
+.hand { margin-top:8px; padding-top:6px; border-top:1px dashed #333; }
+.cards { display:flex; flex-wrap:wrap; gap:4px; }
+.card { background:#fff; color:#111; border-radius:4px; padding:2px 6px; font-weight:700; font-size:15px; cursor:pointer; }
+.card.red { color:#d11; }
+.total { margin-top:4px; font-size:13px; }
+.total.bust { color:var(--red); }
+.bet { margin-top:6px; font-size:12px; }
+.advice { margin-top:6px; }
+.advice .play { font-size:22px; font-weight:800; letter-spacing:.5px; }
+.advice.dev .play { color:var(--amber); }
+.advice .why { font-size:11px; color:#bbb; }
+.sugg { margin-top:8px; font-size:12px; color:var(--green); }
+.hint { color:#666; font-size:12px; }
+h2 { font-size:15px; margin:14px 0 6px; font-weight:600; color:#bbb; }
+.round { display:flex; flex-wrap:wrap; gap:6px 16px; padding:6px 0; border-top:1px solid #1c1c1c; align-items:center; }
+.round .no { color:#777; width:46px; }
+.round .grp { display:flex; gap:6px; align-items:center; }
+.round .name { color:#888; font-size:12px; }
+.round .mini-cards { font-variant-numeric:tabular-nums; }
+.res { font-weight:700; font-size:12px; padding:1px 6px; border-radius:3px; color:#000; }
+.res.WIN { background:var(--green); } .res.BJ { background:var(--amber); }
+.res.LOSS, .res.BUST { background:var(--red); } .res.PUSH { background:#aaa; }
+.round .mine-grp .name { color:var(--green); }
+@media (max-width: 900px) { #seats { grid-template-columns:repeat(2, minmax(0, 1fr)); } }

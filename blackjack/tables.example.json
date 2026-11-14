@@ -7,13 +7,17 @@
   "_detect_note": "Per-zone detection crops each seat before running YOLO; full-frame detection misread small cards in testing.",
   "detect_per_zone": true,
   "zone_padding": 0,
+  "_bet_note": "Unit sizing only, not bankroll management. ramp = [min true count, units] steps: PLACEHOLDER.",
+  "bet": {"unit_value": 5, "ramp": [[-100, 1], [1, 2], [2, 5], [3, 10], [4, 20]]},
+  "_strategy_note": "6 decks, dealer stands on soft 17, double after split, double any two cards.",
+  "strategy": {"das": true, "double_any": true, "surrender": false},
   "llm": {"enabled": false, "model": "claude-opus-5-5", "crop_size": [120, 170]},
   "defaults": {
     "shoe": {
-      "_note": "PLACEHOLDER shoe: 8 decks of 52, about half dealt before the shuffle.",
-      "decks": 8,
+      "_note": "PLACEHOLDER shoe: 6 decks of 52, cut card at 80% dealt (Pragmatic Play Blackjack 105, $5-1000).",
+      "decks": 6,
       "cards_per_rank_per_deck": {"1": 4, "2": 4, "3": 4, "4": 4, "5": 4, "6": 4, "7": 4, "8": 4, "9": 4, "10": 16},
-      "penetration": 0.5
+      "penetration": 0.8
     },
     "edge": {
       "_note": "PLACEHOLDER edge model: ~0.71% house edge, +0.5% per Hi-Lo true count.",
@@ -38,19 +42,20 @@
   },
   "tables": [
     {
-      "id": "table-1",
-      "_note": "Region is where this table sits on your screen. Zones are inside that region. 6 seats as a PLACEHOLDER (Evolution classic tables have 7: add seat7). Run `python -m blackjack calibrate` to check them.",
+      "id": "blackjack-105",
+      "_note": "Region is where this table sits on your screen. Zones are inside that region. 7 seat zones as PLACEHOLDERS, seat1 leftmost. Run `python -m blackjack calibrate` to check them.",
       "region": {"left": 0, "top": 0, "width": 1100, "height": 580},
       "tracker": {
         "my_seat": null,
         "zones": {
-          "dealer": [380, 330, 340, 90],
-          "seat1": [880, 430, 200, 140],
-          "seat2": [720, 470, 170, 110],
-          "seat3": [550, 490, 170, 90],
-          "seat4": [380, 490, 170, 90],
-          "seat5": [210, 470, 170, 110],
-          "seat6": [20, 430, 200, 140]
+          "dealer": [380, 60, 340, 110],
+          "seat1": [10, 400, 150, 150],
+          "seat2": [165, 440, 150, 120],
+          "seat3": [320, 465, 150, 100],
+          "seat4": [475, 475, 150, 95],
+          "seat5": [630, 465, 150, 100],
+          "seat6": [785, 440, 150, 120],
+          "seat7": [940, 400, 150, 150]
         }
       },
       "shuffle_banner": null

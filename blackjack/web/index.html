@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Blackjack counter</title>
+<link rel="stylesheet" href="/style.css">
+</head>
+<body>
+<header id="head">
+  <div class="stats" id="stats"></div>
+  <div class="controls">
+    <select id="table" title="table"></select>
+    <label class="unit">unit $ <input id="unit" type="number" min="1" step="1" value="5"></label>
+    <button id="newshoe" title="Wipe the current shoe (use after a shuffle)">NEW SHOE / RESET</button>
+  </div>
+</header>
+<div id="banner"></div>
+<section id="feedbox">
+  <img id="feed" alt="">
+  <div id="nofeed">no frames yet</div>
+</section>
+<section id="dealer"></section>
+<section id="seats"></section>
+<p class="hint">Click a seat to toggle MINE (max 2). Right-click, or the small button, cycles occupancy auto / occupied / empty. Click a card to correct or delete it; + adds a missed card.</p>
+<section>
+  <h2>History</h2>
+  <div id="history"></div>
+</section>
+<script src="/app.js"></script>
+</body>
+</html>

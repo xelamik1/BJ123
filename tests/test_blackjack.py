@@ -294,5 +294,235 @@ class Config(unittest.TestCase):
         self.assertEqual((table.shoe.decks, table.tracker.stable_frames), (6, 3))
 
 
+class BetUnits(unittest.TestCase):
+    def test_default_ramp(self):
+        from blackjack.counting import bet_units
+        cases = [(-5, 1), (0.99, 1), (1, 2), (1.9, 2), (2, 5), (3, 10), (3.99, 10), (4, 20), (9, 20)]
+        for tc, units in cases:
+            self.assertEqual(bet_units(tc), units, tc)
+
+    def test_custom_ramp_unsorted(self):
+        from blackjack.counting import bet_units
+        ramp = [[2, 4], [0, 1]]
+        self.assertEqual((bet_units(-1, ramp), bet_units(0, ramp), bet_units(2.5, ramp)), (1, 1, 4))
+
+
+class Strategy(unittest.TestCase):
+    def play(self, ranks, up, tc=0.0, **kw):
+        from blackjack.strategy import recommend
+        return recommend(ranks, up, tc, **kw)["play"]
+
+    def test_basic_cells(self):
+        self.assertEqual(self.play([10, 2], 4), "stand")      # 12 v 4
+        self.assertEqual(self.play([10, 2], 3, -1), "hit")    # 12 v 3 hits at low count
+        self.assertEqual(self.play([5, 4], 3), "double")      # 9 v 3
+        self.assertEqual(self.play([5, 4], 7), "hit")
+        self.assertEqual(self.play([10, 1], 10), "stand")     # 21
+        self.assertEqual(self.play([1, 7], 3), "double")      # A7 v 3
+        self.assertEqual(self.play([1, 7], 9), "hit")         # A7 v 9
+        self.assertEqual(self.play([1, 7], 2), "stand")
+        self.assertEqual(self.play([1, 6], 6), "double")
+        self.assertEqual(self.play([8, 8], 10), "split")
+        self.assertEqual(self.play([1, 1], 6), "split")
+        self.assertEqual(self.play([10, 10], 6), "stand")
+        self.assertEqual(self.play([4, 4], 5), "split")       # DAS
+        self.assertEqual(self.play([4, 4], 5, settings=__import__("blackjack.strategy").strategy.StrategySettings(das=False)), "hit")
+        self.assertEqual(self.play([5, 5], 9), "double")      # played as hard 10
+        self.assertEqual(self.play([9, 9], 7), "stand")
+
+    def test_no_double_with_three_cards(self):
+        self.assertEqual(self.play([2, 3, 6], 6, can_double=False), "hit")
+        self.assertEqual(self.play([1, 2, 4], 6, can_double=False), "hit")
+        self.assertEqual(self.play([1, 3, 3], 3, can_double=False), "stand")   # soft 18 v 3: Ds -> stand
+
+    def test_11_v_5_low_count_just_hits(self):
+        from blackjack.strategy import recommend
+        self.assertEqual(self.play([5, 6], 5, 0.0), "double")
+        r = recommend([5, 6], 5, -9.0)
+        self.assertEqual(r["play"], "hit")
+        self.assertTrue(r["deviation"])
+        self.assertIn("double 11 vs 5 only at TC >=", r["reason"])
+
+    def test_16_v_10_stands_at_nonnegative_count(self):
+        self.assertEqual(self.play([10, 6], 10, -1.0), "hit")
+        self.assertEqual(self.play([10, 6], 10, 0.0), "stand")
+        self.assertEqual(self.play([10, 6], 10, 2.0), "stand")
+
+    def test_pair_not_overridden_by_hard_index(self):
+        self.assertEqual(self.play([8, 8], 10, 3.0), "split")
+
+    def test_surrender_setting(self):
+        from blackjack.strategy import StrategySettings
+        self.assertEqual(self.play([10, 6], 9, settings=StrategySettings(surrender=True)), "surrender")
+        self.assertEqual(self.play([10, 6], 9), "hit")
+
+
+class RoundResults(unittest.TestCase):
+    def test_results(self):
+        from blackjack.history import round_result as rr
+        self.assertEqual(rr([10, 1], [10, 9]), "BJ")
+        self.assertEqual(rr([10, 1], [10, 1]), "PUSH")
+        self.assertEqual(rr([10, 5, 6], [10, 1]), "LOSS")      # 21 loses to dealer blackjack
+        self.assertEqual(rr([10, 5, 6], [10, 9]), "WIN")
+        self.assertEqual(rr([10, 1], [10, 9], split=True), "WIN")
+        self.assertEqual(rr([10, 6, 8], [10, 7]), "BUST")
+        self.assertEqual(rr([10, 8], [10, 6, 10]), "WIN")        # dealer busts
+        self.assertEqual(rr([10, 8], [10, 8]), "PUSH")
+        self.assertEqual(rr([10, 7], [10, 8]), "LOSS")
+        self.assertIsNone(rr([10, 8], []))
+        self.assertIsNone(rr([10, 8], [6]))                      # dealer still drawing
+
+    def test_recent_rounds_from_memory(self):
+        from blackjack.history import recent_rounds
+        mem = Memory()
+        t = tracker(mem, stable_frames=1)
+        for _ in range(2):
+            t.update([det("KH", 100, 50), det("9C", 160, 50), det("AS", 100, 250), det("KD", 160, 250),
+                      det("5C", 600, 250), det("6D", 660, 250)])
+        for _ in range(t.settings.empty_frames_round_end):
+            t.update([])
+        rounds = recent_rounds(mem, "t1")
+        self.assertEqual(len(rounds), 1)
+        r = rounds[0]
+        self.assertEqual(r["dealer"]["total"], 19)
+        self.assertEqual(r["seats"]["seat1"][0]["result"], "BJ")
+        self.assertEqual(r["seats"]["seat2"][0]["result"], "LOSS")
+
+
+class FakeTracker:
+    """Duck-typed tracker for the server tests."""
+
+    def __init__(self):
+        self.settings = TrackerSettings(zones={**ZONES, "seat3": [900, 200, 100, 100]})
+        self.calls = []
+
+    def status(self):
+        return {"table": "t1", "shoe_id": 1, "round": 1, "reliable": True, "cards_seen": 7,
+                "decks_left": 5.9, "penetration": 0.02, "running_count": 2, "true_count": 0.34,
+                "alert": False, "insurance": False, "seats": {}, "advice": None,
+                "occupancy": {"seat2": True}}
+
+    def seat_cards(self):
+        c = lambda i, label, rank: {"id": i, "label": label, "rank": rank}
+        return {"dealer": [[c(1, "6D", 6)]], "seat1": [[c(2, "5H", 5), c(3, "6S", 6)]],
+                "seat3": [[c(4, "AC", 1), c(5, "6C", 6)]]}
+
+    def new_shoe(self, reason):
+        self.calls.append(("new_shoe", reason))
+
+    def edit_card(self, track_id, label):
+        self.calls.append(("edit", track_id, label))
+
+    def add_card_manual(self, zone, label):
+        self.calls.append(("add", zone, label))
+        return 99
+
+
+class ServerApi(unittest.TestCase):
+    def setUp(self):
+        import threading
+        from blackjack import server
+        self.fake = FakeTracker()
+        self.app = server.App([server.TableRuntime("t1", self.fake)], Memory(),
+                              bet={"unit_value": 5})
+        self.httpd = server.make_server(self.app, "127.0.0.1", 0)
+        self.port = self.httpd.server_address[1]
+        threading.Thread(target=self.httpd.serve_forever, daemon=True).start()
+
+    def tearDown(self):
+        self.httpd.shutdown()
+        self.httpd.server_close()
+
+    def call(self, path, body=None):
+        import urllib.error
+        import urllib.request
+        data = json.dumps(body).encode() if body is not None else None
+        req = urllib.request.Request(f"http://127.0.0.1:{self.port}{path}", data=data,
+                                     headers={"Content-Type": "application/json"})
+        try:
+            with urllib.request.urlopen(req) as r:
+                return r.status, r.read(), r.headers
+        except urllib.error.HTTPError as e:
+            return e.code, e.read(), e.headers
+
+    def state(self):
+        return json.loads(self.call("/api/state")[1])
+
+    def test_state_shape(self):
+        s = self.state()
+        for key in ("tables", "table", "status", "dealer", "seats", "mine", "bet", "capture"):
+            self.assertIn(key, s)
+        self.assertEqual([x["seat"] for x in s["seats"]], ["seat1", "seat2", "seat3"])
+        self.assertEqual(s["dealer"]["up"], 6)
+        self.assertEqual(s["bet"]["units"], 1)
+        seat1, seat2, seat3 = s["seats"]
+        self.assertEqual((seat1["state"], seat2["state"], seat3["state"]),
+                         ("occupied", "occupied", "occupied"))
+        self.assertEqual(seat1["hands"][0]["total"], 11)
+        self.assertTrue(seat3["hands"][0]["soft"])
+        self.assertNotIn("advice", seat1["hands"][0])
+
+    def test_mine_advice_and_limit(self):
+        for seat in ("seat1", "seat2", "seat3"):
+            self.call("/api/mine", {"seat": seat, "mine": True})
+        s = self.state()
+        self.assertEqual(s["mine"], ["seat2", "seat3"])        # at most two
+        self.assertEqual(s["seats"][2]["hands"][0]["advice"]["play"], "double")   # A6 v 6
+        self.call("/api/mine", {"seat": "seat1", "mine": True})
+        hand = self.state()["seats"][0]["hands"][0]
+        self.assertEqual(hand["advice"]["play"], "double")      # 11 v 6
+        self.assertIn("reason", hand["advice"])
+
+    def test_occupancy_override_and_empty(self):
+        self.call("/api/occupancy", {"seat": "seat1", "value": "empty"})
+        self.assertEqual(self.state()["seats"][0]["state"], "empty")
+        self.call("/api/occupancy", {"seat": "seat1", "value": None})
+        self.assertEqual(self.state()["seats"][0]["state"], "occupied")
+
+    def test_writes_reach_tracker(self):
+        self.assertEqual(self.call("/api/new_shoe", {})[0], 200)
+        self.call("/api/card", {"id": 2, "label": "QH"})
+        self.call("/api/card/add", {"zone": "seat1", "label": "2C"})
+        self.assertEqual(self.fake.calls, [("new_shoe", "manual"), ("edit", 2, "QH"),
+                                           ("add", "seat1", "2C")])
+
+    def test_unit_value_and_bad_requests(self):
+        self.call("/api/settings", {"unit_value": 25})
+        self.assertEqual(self.state()["bet"]["unit_value"], 25.0)
+        self.assertEqual(self.call("/api/settings", {"unit_value": -1})[0], 400)
+        self.assertEqual(self.call("/api/mine", {"seat": "nope", "mine": True})[0], 400)
+        self.assertEqual(self.call("/api/nothing", {})[0], 404)
+
+    def test_static_history_and_frame(self):
+        status, body, _ = self.call("/")
+        self.assertEqual(status, 200)
+        self.assertIn(b"NEW SHOE", body)
+        self.assertEqual(self.call("/frame.jpg")[0], 404)
+        self.app.runtime().set_frame(b"\xff\xd8jpeg", 0)
+        self.assertEqual(self.call("/frame.jpg")[1], b"\xff\xd8jpeg")
+        self.assertEqual(json.loads(self.call("/api/history")[1])["rounds"], [])
+
+
+class ManualTrackerEdits(unittest.TestCase):
+    def test_edit_delete_add_keep_count_consistent(self):
+        mem = Memory()
+        t = tracker(mem, stable_frames=1)
+        t.update([det("5C", 100, 250), det("KD", 160, 250)])
+        self.assertEqual(t.shoe.running_count(), 0)             # +1 and -1
+        ids = [c["id"] for c in t.seat_cards()["seat1"][0]]
+        t.edit_card(ids[1], "3H")                                # K -> 3: count +2
+        self.assertEqual(t.shoe.running_count(), 2)
+        t.edit_card(ids[0], "")                                  # delete the 5
+        self.assertEqual((t.shoe.running_count(), t.shoe.seen), (1, 1))
+        t.add_card_manual("seat1", "AS")                         # ace: -1
+        self.assertEqual((t.shoe.running_count(), t.shoe.seen), (0, 2))
+        labels = [c["label"] for c in t.seat_cards()["seat1"][0]]
+        self.assertEqual(sorted(labels), ["3H", "AS"])
+        rows = mem.shoe_cards(t.shoe_id)
+        self.assertEqual(sorted(r["label"] for r in rows), ["3H", "AS"])
+        with self.assertRaises(KeyError):
+            t.edit_card(9999, "2C")
+
+
 if __name__ == "__main__":
     unittest.main()

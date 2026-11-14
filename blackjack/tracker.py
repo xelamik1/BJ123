@@ -367,3 +367,61 @@ class TableTracker:
                       for zone, hands in seats.items()},
             "advice": advice,
         }
+
+    # Manual edits for the web UI (additive; no existing logic changed) ------
+    def seat_cards(self):
+        """zone -> hands (left to right) -> [{"id", "label", "rank"}] for committed cards.
+
+        Same grouping as seats(), but with track ids so a card can be edited.
+        """
+        by_zone = {}
+        for track in self.tracks:
+            if track.card is not None:
+                by_zone.setdefault(track.zone, []).append(track)
+        out = {}
+        for zone, tracks in sorted(by_zone.items()):
+            tracks.sort(key=lambda t: t.x)
+            hands = [[tracks[0]]]
+            for prev, cur in zip(tracks, tracks[1:]):
+                if cur.x - prev.x > self.settings.hand_gap:
+                    hands.append([])
+                hands[-1].append(cur)
+            out[zone] = [[{"id": t.id, "label": t.card.label, "rank": t.card.rank}
+                          for t in sorted(hand, key=lambda t: t.position)] for hand in hands]
+        return out
+
+    def edit_card(self, track_id, label):
+        """Correct a committed card by hand; an empty label deletes it. KeyError if unknown."""
+        track = next((t for t in self.tracks if t.id == track_id and t.card is not None), None)
+        if track is None:
+            raise KeyError(f"no card with id {track_id}")
+        if not label:
+            self.shoe.restore(track.card.rank)
+            self.memory.void_card(track.card_id)
+            self.memory.event(self.table_id, "manual_delete", f"{track.zone} {track.card.label}",
+                              self.shoe_id)
+            self.tracks.remove(track)
+            return
+        if parse_label(label) is None:
+            raise ValueError("cannot set a card to face-down")
+        self.resolve(track, label, 1.0, source="manual")
+
+    def add_card_manual(self, zone, label):
+        """Add a card the detector missed to a zone; returns the new track id."""
+        card = parse_label(label)
+        if card is None:
+            raise ValueError("cannot add a face-down card")
+        if zone not in self.settings.zones:
+            raise KeyError(f"unknown zone {zone}")
+        placed = [t for t in self.tracks if t.zone == zone and t.card is not None]
+        zx, zy, zw, zh = self.settings.zones[zone]
+        x = max(t.x for t in placed) + 1 if placed else zx + zw / 2
+        y = placed[0].y if placed else zy + zh / 2
+        track = self._new_track(zone, x, y)
+        track.votes[card.label] = float(self.settings.stable_frames)
+        track.frames = self.settings.stable_frames
+        track.last_frame = self.frame_no
+        self._commit(track, card, card.label, time.monotonic())
+        with self.memory.db:
+            self.memory.db.execute("UPDATE cards SET source='manual' WHERE id=?", (track.card_id,))
+        return track.id
